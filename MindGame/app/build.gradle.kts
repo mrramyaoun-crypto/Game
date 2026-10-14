@@ -4,7 +4,7 @@ plugins { id("com.android.application"); id("org.jetbrains.kotlin.android") }
 android {
     namespace = "com.ramy.mindgame"
     compileSdk = 35
-    defaultConfig { applicationId = "com.ramy.mindgame"; minSdk = 26; targetSdk = 35; versionCode = 4; versionName = "0.4.0-home-preview" }
+    defaultConfig { applicationId = "com.ramy.mindgame"; minSdk = 26; targetSdk = 35; versionCode = 5; versionName = "0.5.0-design-review" }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
     testOptions { unitTests.isIncludeAndroidResources = true; unitTests.all { it.maxHeapSize = "2g"; it.systemProperty("robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2"); System.getenv("HTTPS_PROXY")?.let { proxy -> val uri=URI(proxy); it.systemProperty("https.proxyHost",uri.host); it.systemProperty("https.proxyPort",uri.port.toString()); it.systemProperty("http.proxyHost",uri.host); it.systemProperty("http.proxyPort",uri.port.toString()) } } }

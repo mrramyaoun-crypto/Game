@@ -1,32 +1,43 @@
 package com.ramy.mindgame
-import android.graphics.Color
-import android.view.Gravity
-import android.widget.*
+import android.content.Context
+import android.graphics.*
+import android.view.View
 import com.ramy.mindgame.games.*
 import com.ramy.mindgame.ui.*
-import com.ramy.mindgame.ui.Theme.dp
-
-internal fun MainActivity.code(g: CodeGame) {
-    codeInput=g.draft
-    val host=boardHost!!;val colors=listOf("#C64D42","#E5B63F","#3A9C7E","#429CC3","#9371B2","#E08A40").map(Color::parseColor)
-    val names=listOf("red","gold","green","blue","violet","orange")
-    var slot=codeInput.indexOf(-1).coerceAtLeast(0)
-    val board=Theme.column(this);board.background=MaterialDrawable(this);board.setPadding(dp(this,8),dp(this,8),dp(this,8),dp(this,8))
-    val activePegs=mutableListOf<TextView>();val submit=Theme.button(this,"Submit guess"){}
-    fun refresh() {activePegs.forEachIndexed {i,v->v.background=PieceDrawable("peg",if(codeInput[i]<0)0xFF241A11.toInt() else colors[codeInput[i]],matched=i==slot);v.contentDescription="Position ${i+1}, ${if(codeInput[i]<0) "empty" else names[codeInput[i]]}, tap to select";v.alpha=if(i==slot)1f else .8f};submit.isEnabled=codeInput.all {it>=0} && !g.won && !g.lost;submit.alpha=if(submit.isEnabled)1f else .5f}
-    fun row(values: IntArray?,r: Int,active: Boolean=false): LinearLayout {
-        val row=Theme.row(this);row.background=Theme.shape(0x663A200B,dp(this,8).toFloat(),0x775F4323)
-        row.addView(Theme.text(this,if(active)"›" else "${r+1}",11f,Theme.muted).apply{gravity=Gravity.CENTER},LinearLayout.LayoutParams(dp(this,22),dp(this,if(active)44 else 32)))
-        repeat(4) {i->val v=Theme.text(this,"",0f);v.setPadding(0,0,0,0);v.background=PieceDrawable("peg",if(values==null||values[i]<0)0xFF241A11.toInt() else colors[values[i]]);row.addView(v,LinearLayout.LayoutParams(0,dp(this,if(active)44 else 32),1f));if(active){activePegs.add(v);v.isFocusable=true;v.setOnClickListener {slot=i;refresh();haptic(v)}}else v.contentDescription="Guess ${r+1}, position ${i+1}, ${if(values==null)"empty" else names[values[i]]}"}
-        if(!active) {val f=if(values==null)Feedback(0,0) else feedback(g.secret,values);row.addView(FeedbackPins(this,f.exact,f.misplaced),LinearLayout.LayoutParams(dp(this,38),dp(this,32)))}
-        return row
-    }
-    repeat(10) {r->board.addView(row(g.attempts.getOrNull(r),r));board.addView(Theme.space(this,2))};host.addView(board)
-    if(!g.won&&!g.lost) {
-        host.addView(Theme.text(this,"YOUR GUESS · tap a slot to replace",11f,Theme.muted));host.addView(row(codeInput,0,true))
-        val palette=Theme.row(this);repeat(6){i->val color=Theme.text(this,"",0f);color.background=PieceDrawable("peg",colors[i]);color.isFocusable=true;color.contentDescription="Choose ${names[i]}";color.setOnClickListener {codeInput[slot]=i;slot=codeInput.indexOf(-1).let{if(it>=0)it else (slot+1)%4};refresh();persist();pop(color);haptic(color)};Theme.addWeighted(palette,color,48)};host.addView(palette)
-        submit.setOnClickListener {if(codeInput.all{it>=0}) {g.submit(codeInput);g.draft=IntArray(4){-1};codeInput=g.draft;changed();playPage()}};host.addView(submit);refresh()
-    }
-    host.addView(Theme.text(this,"Black = exact · ivory = right color elsewhere",12f,Theme.muted))
-    if(g.won||g.lost){host.addView(Theme.text(this,"THE HIDDEN CODE",11f));host.addView(row(g.secret,0))}
+private val pegColors=intArrayOf(0xFFEF2028.toInt(),0xFFF8CB16.toInt(),0xFF10B843.toInt(),0xFF087BE4.toInt(),0xFF9624CD.toInt(),0xFFF49419.toInt())
+private val pegNames=listOf("red","gold","green","blue","violet","orange")
+internal fun MainActivity.code(g:CodeGame){
+ val t=gameTable!!;codeInput=g.draft;var slot=codeInput.indexOf(-1).coerceAtLeast(0)
+ t.text({"Mastermind"},70f,8f,253f,37f,26f,Theme.darkInk,true)
+ t.text({if(g.won)"Code solved"else if(g.lost)"Code revealed"else "Attempt ${g.moves+1} / 10"},19f,45f,197f,24f,14f,Theme.darkInk,false,Paint.Align.LEFT)
+ t.text({elapsedLabel()},287f,45f,86f,24f,14f,Theme.darkInk,false,Paint.Align.RIGHT)
+ t.place(SecretPegs(this,g),103f,65f,187f,52f);t.place(CodeBoard(this,g),25f,136f,342f,400f)
+ val positions=mutableListOf<PegControl>();var submit:GameControl?=null
+ fun refresh(){positions.forEachIndexed{i,v->v.contentDescription="Position ${i+1}, ${if(codeInput[i]<0)"empty"else pegNames[codeInput[i]]}, tap to select";v.invalidate()};submit?.isEnabled=codeInput.all{it>=0}&&!g.won&&!g.lost;persist();t.refresh()}
+ repeat(4){i->val v=PegControl(this,{codeInput[i].let{if(it<0)null else pegColors[it]}},{slot==i},false);v.setOnClickListener{slot=i;haptic(v);refresh()};t.place(v,49f+i*74f,546f,72f,61f);positions.add(v)}
+ t.text({if(g.won)"Solved! · score ${g.score}"else if(g.lost)"Ten guesses used · start again from the menu"else "Tap a color to fill a slot"},16f,609f,361f,24f,14f,Theme.darkInk)
+ listOf(0,3,2,1,4,5).forEachIndexed{k,i->val v=PegControl(this,{pegColors[i]},{false},true);v.contentDescription="Choose ${pegNames[i]}";v.setOnClickListener{if(!g.won&&!g.lost){codeInput[slot]=i;slot=codeInput.indexOf(-1).let{if(it>=0)it else(slot+1)%4};pop(v);haptic(v);refresh()}};t.place(v,13f+k*61f,638f,61f,57f)}
+ t.text({"Black = exact · ivory = right color elsewhere"},12f,697f,369f,19f,11f,Theme.darkInk)
+ t.control("Clear guess","undo",21f,719f,53f,52f){if(!g.won&&!g.lost){g.draft.fill(-1);slot=0;refresh()}}.ink=Theme.darkInk
+ submit=t.control("Check guess",null,91f,719f,214f,52f){if(codeInput.all{it>=0}&&!g.won&&!g.lost){g.submit(codeInput);g.draft=IntArray(4){-1};codeInput=g.draft;changed();playPage()}}
+ refresh()
+}
+private class PegControl(c:Context,private val color:()->Int?,private val selected:()->Boolean,private val palette:Boolean):View(c){
+ init{isFocusable=true;isClickable=true}
+ override fun getAccessibilityClassName():CharSequence="android.widget.Button"
+ override fun onDraw(c:Canvas){val r=minOf(width,height)*if(palette).42f else .35f;val x=width/2f;val y=height/2f;PhysicalPieces.socket(c,x,y,r+2,selected());color()?.let{PhysicalPieces.peg(c,x,y,r,it)}}
+ override fun drawableStateChanged(){super.drawableStateChanged();invalidate()}
+}
+private class SecretPegs(c:Context,private val g:CodeGame):View(c){private val p=Paint(Paint.ANTI_ALIAS_FLAG)
+ override fun onDraw(c:Canvas){val step=width/4f;repeat(4){i->val x=step*(i+.5f);val y=height/2f;val r=minOf(step,height)*.36f;PhysicalPieces.socket(c,x,y,r+2);if(g.won||g.lost)PhysicalPieces.peg(c,x,y,r,pegColors[g.secret[i]])else{p.color=Theme.brass;p.textSize=r*1.25f;p.typeface=Typeface.create("serif",Typeface.BOLD);p.textAlign=Paint.Align.CENTER;c.drawText("?",x,y-(p.ascent()+p.descent())/2,p)}}}
+}
+private class CodeBoard(c:Context,private val g:CodeGame):View(c){private val p=Paint(Paint.ANTI_ALIAS_FLAG)
+ override fun onDraw(c:Canvas){val sx=width/342f;val h=height/10f;repeat(10){r->val y=h*(r+.5f)
+  if(r==g.attempts.size&&!g.won&&!g.lost){p.color=0x18FFE4AD;c.drawRect(1f,r*h,width-1f,(r+1)*h,p)}
+  p.color=0x99764726.toInt();p.strokeWidth=.8f*sx;if(r>0)c.drawLine(0f,r*h,width.toFloat(),r*h,p)
+  p.color=Theme.ink;p.textSize=14*sx;p.typeface=Typeface.create("serif",Typeface.NORMAL);p.textAlign=Paint.Align.CENTER;c.drawText("${r+1}",18*sx,y-(p.ascent()+p.descent())/2,p)
+  repeat(4){i->val x=(74+i*55)*sx;val radius=minOf(h*.34f,15*sx);PhysicalPieces.socket(c,x,y,radius+1.5f);g.attempts.getOrNull(r)?.let{PhysicalPieces.peg(c,x,y,radius,pegColors[it[i]])}}
+  val f=g.attempts.getOrNull(r)?.let{feedback(g.secret,it)}
+  repeat(4){i->val x=(302+(i%2)*15)*sx;val yy=y+(i/2-.5f)*15*sx;PhysicalPieces.socket(c,x,yy,4.8f*sx);if(f!=null&&i<f.exact+f.misplaced)PhysicalPieces.peg(c,x,yy,4.2f*sx,if(i<f.exact)0xFF171511.toInt()else 0xFFFFF6DF.toInt())}
+ }}
 }

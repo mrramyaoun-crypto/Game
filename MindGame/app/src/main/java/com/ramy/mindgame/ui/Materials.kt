@@ -23,6 +23,11 @@ class MaterialDrawable(private val context: Context,private val paper: Boolean=f
 }
 class RelicDrawable(private val context: Context,private val relic: Int,private val matched: Boolean): Drawable() {
     private val p=Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
-    override fun draw(c: Canvas) { val r=RectF(bounds);p.color=0xFFBD9F63.toInt();c.drawRoundRect(r,8f,8f,p);val inside=RectF(r.left+2,r.top+2,r.right-2,r.bottom-4);c.save();val path=Path();path.addRoundRect(inside,7f,7f,Path.Direction.CW);c.clipPath(path);ArtAssets.bitmap(context,"relic_$relic")?.let{c.drawBitmap(it,null,inside,p)};c.restore();if(matched) {p.color=0xFF1E7063.toInt();c.drawCircle(r.right-12,r.top+12,9f,p);p.color=Color.WHITE;p.strokeWidth=2f;c.drawLine(r.right-16,r.top+12,r.right-13,r.top+15,p);c.drawLine(r.right-13,r.top+15,r.right-8,r.top+9,p)} }
+    override fun draw(c:Canvas){val r=RectF(bounds);val inset=maxOf(2f,r.width()*.035f);val inside=RectF(r.left+inset,r.top+inset,r.right-inset,r.bottom-inset*2)
+        p.color=0x99412A12.toInt();c.drawRoundRect(RectF(r.left+2,r.top+4,r.right,r.bottom),5f,5f,p);p.color=0xFFF2DFB8.toInt();c.drawRoundRect(inside,5f,5f,p)
+        c.save();val path=Path();path.addRoundRect(inside,5f,5f,Path.Direction.CW);c.clipPath(path);ArtAssets.bitmap(context,"relic_$relic")?.let{val side=minOf(inside.width(),inside.height());c.drawBitmap(it,null,RectF(inside.centerX()-side/2,inside.centerY()-side/2,inside.centerX()+side/2,inside.centerY()+side/2),p)};c.restore()
+        p.color=if(matched)0xFFFFD76B.toInt()else 0xFFB48A45.toInt();p.style=Paint.Style.STROKE;p.strokeWidth=if(matched)2.5f else 1f;c.drawRoundRect(inside,5f,5f,p);p.strokeWidth=.7f;c.drawRoundRect(RectF(inside.left+3,inside.top+3,inside.right-3,inside.bottom-3),4f,4f,p);p.style=Paint.Style.FILL
+        if(matched){p.color=0x22FFCF50;c.drawRoundRect(inside,5f,5f,p)}
+    }
     override fun setAlpha(a: Int) {};override fun setColorFilter(f: ColorFilter?) {};override fun getOpacity()=PixelFormat.OPAQUE
 }

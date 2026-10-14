@@ -1,17 +1,17 @@
 package com.ramy.mindgame
 import android.app.AlertDialog
-import android.graphics.Color
-import android.graphics.Typeface
-import android.widget.LinearLayout
+import android.graphics.Paint
 import com.ramy.mindgame.games.SudokuGame
 import com.ramy.mindgame.ui.*
-internal fun MainActivity.sudoku(g: SudokuGame) {
-    val host=boardHost!!;var pencil=false
-    host.addView(Theme.button(this,"${g.difficulty} · choose difficulty ▾") {AlertDialog.Builder(this).setTitle("Choose difficulty").setItems(arrayOf("Easy · singles","Medium · locked candidates","Hard · candidate pairs","Expert · advanced deduction")){_,i->newGame(SudokuGame(difficulty=listOf("Easy","Medium","Hard","Expert")[i]))}.show()});host.addView(Theme.space(this,10))
-    fun refresh(){cells.forEachIndexed{i,v->val hasNotes=g.board[i]==0&&g.notes[i]!=0;v.text=if(g.board[i]!=0)"${g.board[i]}" else if(hasNotes)(1..9).chunked(3).joinToString("\n"){row->row.joinToString(" "){n->if(g.notes[i] and(1 shl n)!=0)"$n" else " "}}else "";v.textSize=if(hasNotes)8f else 22f;v.typeface=Typeface.create(if(hasNotes)"monospace" else "sans-serif",if(g.fixed[i]==1)Typeface.BOLD else Typeface.NORMAL);v.setTextColor(if(g.conflicts(i,g.board[i]))Color.parseColor("#BA3934")else if(g.fixed[i]==1)Theme.darkInk else Color.parseColor("#28786D"));v.background=SudokuCellDrawable(i,i==selected,selected>=0&&(i/9==selected/9||i%9==selected%9||i/27==selected/27&&i%9/3==selected%9/3||g.board[selected]>0&&g.board[i]==g.board[selected]),g.fixed[i]==1);v.contentDescription="Row ${i/9+1}, column ${i%9+1}, ${if(g.board[i]==0)"empty"else g.board[i]}, ${if(g.fixed[i]==1)"given"else "editable"}"}}
-    cells=grid(9,{""},{Theme.surface},{i->selected=i;refresh()},{i->if(g.fixed[i]==0){g.enter(i,0);changed();refresh()}});cells.forEach{v->(v.layoutParams as LinearLayout.LayoutParams).setMargins(0,0,0,0);v.includeFontPadding=false};refresh();host.addView(Theme.space(this,12))
-    val tools=Theme.row(this);val notes=Theme.button(this,"Notes"){};notes.alpha=.6f;notes.setOnClickListener{pencil=!pencil;notes.alpha=if(pencil)1f else .6f;notes.text=if(pencil)"Notes ✓"else "Notes";haptic(it)}
-    Theme.addWeighted(tools,Theme.button(this,"Undo"){if(g.undo()){changed();refresh()}});Theme.addWeighted(tools,Theme.button(this,"Erase"){if(selected>=0&&g.fixed[selected]==0){g.enter(selected,0);changed();refresh()}});Theme.addWeighted(tools,notes);Theme.addWeighted(tools,Theme.button(this,"Hint"){val i=g.hint();if(i>=0){selected=i;changed();refresh();android.widget.Toast.makeText(this,"${g.solution[i]} revealed at row ${i/9+1}, column ${i%9+1}",android.widget.Toast.LENGTH_SHORT).show()}});host.addView(tools)
-    listOf(1..5,6..9).forEach{range->val row=Theme.row(this);range.forEach{n->val key=Theme.button(this,"$n"){if(selected>=0&&g.fixed[selected]==0){if(pencil)g.note(selected,n)else g.enter(selected,n);changed();refresh();pop(cells[selected])}};key.textSize=24f;key.background=Theme.paper(this);key.setTextColor(Theme.darkInk);Theme.addWeighted(row,key,54)};host.addView(row)}
-    host.addView(Theme.text(this,"Tap a cell · choose a number · Notes for possibilities",12f,Theme.muted))
+internal fun MainActivity.sudoku(g:SudokuGame){
+ val t=gameTable!!;var pencil=false
+ t.text({"Sudoku"},145f,44f,185f,45f,30f,Theme.ink,true,Paint.Align.LEFT)
+ t.control("Choose Sudoku difficulty",null,145f,86f,195f,43f){AlertDialog.Builder(this).setTitle("Choose difficulty").setItems(arrayOf("Easy · singles","Medium · locked candidates","Hard · candidate pairs","Expert · advanced deduction")){_,i->newGame(SudokuGame(difficulty=listOf("Easy","Medium","Hard","Expert")[i]))}.show()}.showLabel=false
+ t.text({"${g.difficulty}  ▾  ·  ${elapsedLabel()}"},145f,90f,192f,30f,16f,Theme.ink,false,Paint.Align.LEFT)
+ val board=SudokuBoardView(this,g,{selected},{i->selected=i;t.refresh()});t.place(board,18f,161f,361f,401f)
+ listOf("Undo" to "undo","Erase" to "erase","Notes" to "notes","Hint" to "hint").forEachIndexed{i,(label,icon)->val control=t.control(label,icon,15f+i*97f,589f,73f,51f){
+  when(i){0->if(g.undo())changed();1->if(selected>=0&&g.fixed[selected]==0){g.enter(selected,0);changed()};2->pencil=!pencil;3->{val index=g.hint();if(index>=0){selected=index;changed()}}};t.refresh()
+ };if(i==2)control.setOnClickListener{pencil=!pencil;control.selectedControl=pencil;haptic(control);t.refresh()};t.text({label},12f+i*97f,643f,79f,23f,13f)}
+ repeat(9){i->val n=i+1;t.control("Enter $n",null,7f+i*42.1f,693f,42.1f,70f){if(selected>=0&&g.fixed[selected]==0&&!g.won){if(pencil)g.note(selected,n)else g.enter(selected,n);changed();haptic(board);board.invalidate()}}.showLabel=false;t.text({"$n"},7f+i*42.1f,696f,42.1f,64f,29f,Theme.darkInk)}
+ t.text({gameMessage().ifBlank{"Tap a cell · use Notes for possibilities"}},15f,764f,363f,21f,11f,Theme.darkInk)
 }

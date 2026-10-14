@@ -10,7 +10,13 @@ import kotlin.math.abs
 class TilesBoardView(c: Context,private val game: TilesGame,private val motion: ()->Boolean,private val changed: ()->Unit): View(c) {
     private data class Travel(val from:Int,val to:Int,val value:Int)
     private val moving=mutableListOf<Travel>();private var fraction=1f;private var animator:ValueAnimator?=null;private var x=0f;private var y=0f
-    private fun tile(c:Canvas,index:Float,row:Float,value:Int){val size=width/4f;val piece=PieceDrawable("tile",value);piece.setBounds((index*size+3).toInt(),(row*size+3).toInt(),((index+1)*size-3).toInt(),((row+1)*size-3).toInt());piece.draw(c)}
+    private val paint=Paint(Paint.ANTI_ALIAS_FLAG)
+    private fun tile(c:Canvas,index:Float,row:Float,value:Int){val size=width/4f;val rect=RectF(index*size+3,row*size+3,(index+1)*size-3,(row+1)*size-3)
+        if(value==0){paint.color=0x665F4428;c.drawRoundRect(rect,5f,5f,paint);paint.style=Paint.Style.STROKE;paint.color=0x66FFF1C9;paint.strokeWidth=1f;c.drawRoundRect(rect,5f,5f,paint);paint.style=Paint.Style.FILL;return}
+        val style=when(value){2->"ivory";4,64,512->"teal";8,16,32,1024->"terra";128,256,2048->"gold";else->"navy"};PhysicalPieces.ceramic(context,c,rect,style)
+        paint.typeface=Typeface.create("serif",Typeface.NORMAL);paint.textAlign=Paint.Align.CENTER;paint.textSize=size*if(value>=1024).31f else if(value>=128).40f else .55f;paint.color=if(value==2)Theme.darkInk else Theme.ink
+        paint.setShadowLayer(1f,0f,1f,if(value==2)0x33FFFFFF else 0x9943250D.toInt());c.drawText("$value",rect.centerX(),rect.centerY()-(paint.ascent()+paint.descent())/2,paint);paint.clearShadowLayer()
+    }
     fun move(direction:Int) {
         if(fraction<1f)return
         val before=game.board.copyOf();if(!game.slide(direction))return

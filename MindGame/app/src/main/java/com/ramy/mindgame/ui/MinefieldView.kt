@@ -32,10 +32,13 @@ class MinefieldView(context: Context,private val game: MinesGame,private val fla
     fun zoomBy(f: Float) {scaleTo(zoom*f,width/2f,height/2f)}
     private fun cellAt(x: Float,y: Float): Int { val col=floor((x-offsetX)/(tile*zoom)).toInt();val row=floor((y-offsetY)/(tile*zoom)).toInt();return if(col in 0 until game.columns && row in 0 until game.rows) row*game.columns+col else -1 }
     override fun onDraw(c: Canvas) {
-        super.onDraw(c);c.save();c.clipRect(0,0,width,height);ArcadeArt.round(c,0f,0f,width.toFloat(),height.toFloat(),20f,Color.parseColor("#D5BF96"));c.translate(offsetX,offsetY);c.scale(zoom,zoom)
+        super.onDraw(c);c.save();c.clipRect(0,0,width,height);c.translate(offsetX,offsetY);c.scale(zoom,zoom)
         for(i in game.mines.indices) {val x=(i%game.columns)*tile;val y=(i/game.columns)*tile;if(x*zoom+offsetX>width || y*zoom+offsetY>height || (x+tile)*zoom+offsetX<0 || (y+tile)*zoom+offsetY<0)continue
             val covered=game.open[i]==0;val v=when { game.lost && game.mines[i]==1 -> -2;game.flags[i]==1 -> -1;!covered->game.adjacent(i);else->0 }
-            val piece=PieceDrawable("mines",v,covered && !game.lost);piece.setBounds(x.toInt(),y.toInt(),(x+tile).toInt(),(y+tile).toInt());piece.draw(c)
+            val rect=android.graphics.RectF(x+.5f,y+.5f,x+tile-.5f,y+tile-.5f)
+            PhysicalPieces.sprite(context,c,if(covered&&v!=-2)"stone"else "paper",rect)
+            if(v<0){val inset=tile*.16f;PhysicalPieces.sprite(context,c,if(v==-1)"flag"else "mine",android.graphics.RectF(x+inset,y+inset,x+tile-inset,y+tile-inset))}
+            else if(v>0){val p=android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);p.textAlign=android.graphics.Paint.Align.CENTER;p.typeface=android.graphics.Typeface.create("serif",android.graphics.Typeface.NORMAL);p.textSize=tile*.65f;p.color=intArrayOf(0xFF126BA1.toInt(),0xFF175C32.toInt(),0xFFB33B20.toInt(),0xFF6B387C.toInt())[(v-1)%4];c.drawText("$v",x+tile/2,y+tile/2-(p.ascent()+p.descent())/2,p)}
         };c.restore()
     }
     override fun onTouchEvent(e: android.view.MotionEvent): Boolean {
