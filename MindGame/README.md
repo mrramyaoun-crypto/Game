@@ -1,14 +1,16 @@
-# MindGame Android — v0.4.0 home review
+# MindGame Android — v0.5.0 design review
 
 Native Android phone APK, Kotlin puzzle engines and native Android views, with the recovered Java Enigma v13 game. Android 8.0+. All gameplay and art are bundled. No ads, login, subscription, server or network permission.
 
-## Home review build — awaiting approval
+## Approved home and six playable physical game screens
 
-The user rejected v0.3.0's visual fidelity. This build changes **only the home presentation**, based directly on approved concept C, Explorer’s Desk. It replaces the separate image cards with one continuous illustrated walnut desk, seven physical game objects with their own native touch/accessibility targets, live labels, settings, bottom navigation, and a local saved-game resume tray. Fresh installation displays an honest first-puzzle invitation instead of fictitious progress.
+Explorer’s Desk is approved and its artwork and interaction code are unchanged. All six game presentations now use detailed bundled artwork and live Android controls: carved Mastermind board and peg sockets; ivory compass-backed relic cards; framed textured ceramic mosaics; parchment Sudoku and brass tools; stone Minesweeper tiles and brass flags; raised glazed 2048 tiles with native movement.
 
-The scene fits with one uniform scale; game objects are never stretched to fill boxes. Press feedback is a subtle native warm light. Small-screen target padding keeps settings and navigation at least 48dp. The largest supported test phone width is 412dp; tested heights include 640, 810 and 860dp. Native scene art is bundled and cached; no browser or network use.
+The game engines, Enigma v13, save format, owl launcher and rule guides are unchanged. Existing saves load without resetting games. A menu in each screen opens the short rules or starts a new game; difficulty controls remain inside the appropriate game.
 
-**Other game screens remain exactly as v0.3.0 and are still awaiting faithful reconstruction.** Engine files, rules, original Enigma module and owl launcher pixels have been verified unchanged. Continue those screens only after the user reviews this home APK.
+Validation: 33 unit/native-graphics checks pass; Android assembly and lint pass with no lint errors. Input checks cover the direct palette, matched cards, Sudoku notes/enter/erase/undo, mosaic strokes/marks/pan/undo, mine difficulty/flags/safe opening, and 2048 swipe/undo. Layout renders cover widths 360, 393 and 412; larger relic hunts scroll.
+
+Review images are **Android View renders with Robolectric Native Graphics**, using controlled example states. They are not generated screen concepts or device/emulator screenshots. Device-specific typography, graphics, insets, timing and haptics still need testing on the target phone. Decorative source images and exact concept puzzle contents are distinct from the live validated puzzles; their clue numbers and board states naturally differ.
 
 ## Existing gameplay retained from v0.3.0
 

@@ -43,9 +43,10 @@ class RenderTests {
             when(val g=activity.game) {
                 is MemoryGame -> { for(v in 0..2) { val pair=g.cards.indices.filter { g.cards[it]==v };g.flip(pair[0]);g.flip(pair[1]) };activity.playPage(); assertTrue(activity.cells.any { it.background is com.ramy.mindgame.ui.RelicDrawable }) }
                 is MinesGame -> { g.reveal(18); val i=g.mines.indices.first { g.open[it]==0 };g.flag(i);activity.playPage() }
-                is NonogramGame -> {for(i in g.board.indices) if(i%g.size<g.size/2)g.mark(i,g.solution[i]==0);activity.playPage()}
-                is TilesGame -> {g.board=intArrayOf(2,4,8,2,4,16,32,8,128,256,64,16,2,4,0,0);g.points=1624;activity.playPage()}
+                is NonogramGame -> {val owl=NonogramGame(pictureKey="owl");activity.newGame(owl);for(i in owl.board.indices)if(i%owl.size<owl.size*2/3)owl.mark(i,owl.solution[i]==0);activity.playPage()}
+                is TilesGame -> {g.board=intArrayOf(2,4,8,2,4,16,32,8,128,256,64,16,2,4,0,0);g.points=1624;com.ramy.mindgame.core.LocalStore(activity).high("2048",12880);activity.playPage()}
                 is CodeGame -> { g.submit(intArrayOf(0,1,2,3));g.submit(intArrayOf(3,2,1,0));activity.playPage() }
+                is SudokuGame -> {val blanks=g.fixed.indices.filter{g.fixed[it]==0};blanks.take(5).forEach{i->(1..9).filter{!g.conflicts(i,it)}.take(3).forEach{g.note(i,it)}};activity.selected=blanks[3];g.enter(activity.selected,g.solution[activity.selected]);activity.playPage()}
                 else -> Unit
             }
             capture(activity,id)

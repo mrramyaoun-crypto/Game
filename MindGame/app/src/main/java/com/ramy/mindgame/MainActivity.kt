@@ -119,7 +119,7 @@ class MainActivity: Activity() {
         val g=game ?: return
         root.removeAllViews();status=null;timer=null;boardHost=null;cells=emptyList()
         val scroll=ScrollView(this).apply{isFillViewport=true;isVerticalScrollBarEnabled=false}
-        val table=GameTable(this,g.id);gameTable=table;scroll.addView(table,ScrollView.LayoutParams(-1,-2));root.addView(scroll,LinearLayout.LayoutParams(-1,-1))
+        val table=GameTable(this,g.id);gameTable=table;scroll.addView(table,FrameLayout.LayoutParams(-1,-2));root.addView(scroll,LinearLayout.LayoutParams(-1,-1))
         val back=table.control("Explorer’s Desk","back",7f,5f,48f,48f){home()}
         val menu=table.control("Game menu and rules","gear",337f,5f,48f,48f){AlertDialog.Builder(this).setTitle(Registry.get(g.id).name).setItems(arrayOf("How to play","New game")){_,i->if(i==0)RuleGuide.show(this,g.id)else restartGame()}.show()}
         if(g.id in listOf("mastermind","memory","2048")){back.drawBody=true;menu.drawBody=true}

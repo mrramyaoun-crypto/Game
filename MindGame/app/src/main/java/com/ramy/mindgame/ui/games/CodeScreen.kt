@@ -29,7 +29,7 @@ private class PegControl(c:Context,private val color:()->Int?,private val select
  override fun drawableStateChanged(){super.drawableStateChanged();invalidate()}
 }
 private class SecretPegs(c:Context,private val g:CodeGame):View(c){private val p=Paint(Paint.ANTI_ALIAS_FLAG)
- override fun onDraw(c:Canvas){val step=width/4f;repeat(4){i->val x=step*(i+.5f);val y=height/2f;val r=minOf(step,height)*.36f;PhysicalPieces.socket(c,x,y,r+2);if(g.won||g.lost)PhysicalPieces.peg(c,x,y,r,pegColors[g.secret[i]])else{p.color=Theme.brass;p.textSize=r*1.25f;p.typeface=Typeface.create("serif",Typeface.BOLD);p.textAlign=Paint.Align.CENTER;c.drawText("?",x,y-(p.ascent()+p.descent())/2,p)}}}
+ override fun onDraw(c:Canvas){val step=width/4f;repeat(4){i->val x=step*(i+.5f);val y=height/2f;val r=minOf(step,height.toFloat())*.36f;PhysicalPieces.socket(c,x,y,r+2);if(g.won||g.lost)PhysicalPieces.peg(c,x,y,r,pegColors[g.secret[i]])else{p.color=Theme.brass;p.textSize=r*1.25f;p.typeface=Typeface.create("serif",Typeface.BOLD);p.textAlign=Paint.Align.CENTER;c.drawText("?",x,y-(p.ascent()+p.descent())/2,p)}}}
 }
 private class CodeBoard(c:Context,private val g:CodeGame):View(c){private val p=Paint(Paint.ANTI_ALIAS_FLAG)
  override fun onDraw(c:Canvas){val sx=width/342f;val h=height/10f;repeat(10){r->val y=h*(r+.5f)

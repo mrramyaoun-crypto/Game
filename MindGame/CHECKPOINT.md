@@ -1,11 +1,11 @@
-# MindGame design continuation — 14 October 2026
+# MindGame 0.5 completion checkpoint
 
-## Recovery checkpoint
-- Existing Enigma repository retained at root; MindGame source kept in MindGame/.
-- Approved Explorer’s Desk home, game engines, local saves, rule guides and difficulty catalogs restored from the v0.4.0 source checkpoint. Do not change the approved home.
-- All six detailed game backdrops and the physical piece sprite atlas recovered from the interrupted session; no artwork regeneration.
-- Temporary workspace cleanup removed uncommitted Kotlin presentation changes. Restore their GameTable, Mastermind, Memory, Sudoku and Mosaic implementations from the session, then finish Minesweeper and 2048.
-- Remaining: compile, exercise native interactions, render at phone sizes, correct visual alignment, build combined APK.
+Branch: codex/mindgame-approved-game-screens. Existing Enigma project at repository root is retained; MindGame lives in MindGame/.
 
-## Approved reference files
-See design/approved/. Mastermind B; Memory B Relic Hunt; Nonogram A Mosaic Restoration; remaining-games approved sheet.
+Completed: approved Explorer’s Desk retained; all six native game screens rebuilt with recovered physical artwork, dynamic boards, direct controls and gestures. Original Enigma, game engines, saves, rule guides, catalogs/difficulties and owl resources are unchanged.
+
+Validation: 33 checks pass; testDebugUnitTest, assembleDebug and lintDebug pass. Native renders cover each game plus 360/393/412 phone widths. APK signature verified, package com.ramy.mindgame, min SDK 26, version code 5; no requested Android permissions.
+
+Review renders: Robolectric Native Graphics rendering actual Android views and controlled example game states. Remaining: final approval and device-specific checks on the target phone. No emulator/device screenshots are claimed.
+
+Build locally with Android SDK 35, build tools 35 and JDK 17. CI generates its own development signer. Existing local installations use the original supplied development signer; keep personal/production signing keys out of Git.

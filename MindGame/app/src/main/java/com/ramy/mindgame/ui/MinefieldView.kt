@@ -9,6 +9,8 @@ import kotlin.math.*
 
 /** Pan/zoom minefield with normal-size hit targets on large boards. */
 class MinefieldView(context: Context,private val game: MinesGame,private val flagMode: ()->Boolean,private val changed: ()->Unit): View(context) {
+    private val numberPaint=android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+    private val numberColors=intArrayOf(0xFF126BA1.toInt(),0xFF175C32.toInt(),0xFFB33B20.toInt(),0xFF6B387C.toInt())
     var viewChanged: (() -> Unit)?=null
     fun viewport()=android.graphics.RectF((-offsetX/(tile*zoom)/game.columns).coerceIn(0f,1f),(-offsetY/(tile*zoom)/game.rows).coerceIn(0f,1f),((width-offsetX)/(tile*zoom)/game.columns).coerceIn(0f,1f),((height-offsetY)/(tile*zoom)/game.rows).coerceIn(0f,1f))
     private var tile=44f*resources.displayMetrics.density
@@ -38,7 +40,7 @@ class MinefieldView(context: Context,private val game: MinesGame,private val fla
             val rect=android.graphics.RectF(x+.5f,y+.5f,x+tile-.5f,y+tile-.5f)
             PhysicalPieces.sprite(context,c,if(covered&&v!=-2)"stone"else "paper",rect)
             if(v<0){val inset=tile*.16f;PhysicalPieces.sprite(context,c,if(v==-1)"flag"else "mine",android.graphics.RectF(x+inset,y+inset,x+tile-inset,y+tile-inset))}
-            else if(v>0){val p=android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);p.textAlign=android.graphics.Paint.Align.CENTER;p.typeface=android.graphics.Typeface.create("serif",android.graphics.Typeface.NORMAL);p.textSize=tile*.65f;p.color=intArrayOf(0xFF126BA1.toInt(),0xFF175C32.toInt(),0xFFB33B20.toInt(),0xFF6B387C.toInt())[(v-1)%4];c.drawText("$v",x+tile/2,y+tile/2-(p.ascent()+p.descent())/2,p)}
+            else if(v>0){val p=numberPaint;p.textAlign=android.graphics.Paint.Align.CENTER;p.typeface=android.graphics.Typeface.create("serif",android.graphics.Typeface.NORMAL);p.textSize=tile*.65f;p.color=numberColors[(v-1)%4];c.drawText("$v",x+tile/2,y+tile/2-(p.ascent()+p.descent())/2,p)}
         };c.restore()
     }
     override fun onTouchEvent(e: android.view.MotionEvent): Boolean {
