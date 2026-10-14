@@ -1,0 +1,16 @@
+package com.ramy.mindgame
+import com.ramy.mindgame.games.*
+import com.ramy.mindgame.core.*
+import org.junit.Assert.*
+import org.junit.Test
+import kotlin.random.Random
+class RedesignTests {
+    @Test fun everyBundledMosaicDeducesToItsUniquePicture(){assertEquals(setOf(10,15,20),NonogramGame.pictures.map{it.size}.toSet());assertEquals(12,NonogramGame.pictures.size);NonogramGame.pictures.forEach{p->val g=NonogramGame(pictureKey=p.key);assertTrue(p.name,NonogramGame.unique(g.solution));for(i in g.solution.indices)g.mark(i,g.solution[i]==0);assertTrue(g.won);val save=g.save();assertEquals(save.toString(),NonogramGame.load(save).save().toString())}}
+    @Test fun mosaicStrokeIsOneTurnAndUndoPersists(){val g=NonogramGame();val before=g.beginStroke();g.paint(0,1);g.paint(1,1);g.paint(1,1);g.endStroke(before);assertEquals(1,g.moves);val restored=NonogramGame.load(g.save());assertTrue(restored.undo());assertArrayEquals(before,restored.board)}
+    @Test fun eightySudokuPuzzlesAreUniqueAndHaveValidSolutions(){assertEquals(4,SudokuCatalog.puzzles.size);SudokuCatalog.puzzles.forEach{(_,pool)->assertEquals(20,pool.size);pool.forEach{(b,s)->val board=b.map{it-'0'}.toIntArray();assertEquals(1,SudokuGame.countSolutions(board));assertEquals(1,SudokuGame.countSolutions(s.map{it-'0'}.toIntArray()));board.indices.filter{board[it]!=0}.forEach{assertEquals(board[it],s[it]-'0')}}}}
+    @Test fun sudokuUndoRestoresNotesAndDifficulty(){val g=SudokuGame(Random(4),"Hard");val i=g.fixed.indexOf(0);g.note(i,3);g.enter(i,g.solution[i]);val restored=SudokuGame.load(g.save());assertEquals("Hard",restored.difficulty);assertTrue(restored.undo());assertEquals(0,restored.board[i]);assertEquals(1 shl 3,restored.notes[i]);assertTrue(restored.hint()>=0)}
+    @Test fun memoryAllFourLevelsHavePairsAndRestore(){for(n in listOf(6,8,12,16)){val g=MemoryGame(Random(4),n);assertEquals(n*2,g.cards.size);assertEquals(n,MemoryGame.load(g.save()).pairs);repeat(n){v->val pair=g.cards.indices.filter{g.cards[it]==v};assertEquals(2,pair.size);g.flip(pair[0]);g.flip(pair[1])};assertTrue(g.won)}}
+    @Test fun tilesUndoRestoresBoardScoreAndWinAfterReload(){val g=TilesGame(Random(7));g.board=IntArray(16);g.board[0]=1024;g.board[1]=1024;val before=g.board.copyOf();g.slide(0);assertTrue(g.won);assertEquals(2048,g.score);val r=TilesGame.load(g.save());assertTrue(r.undo());assertFalse(r.won);assertEquals(0,r.score);assertEquals(0,r.moves);assertArrayEquals(before,r.board);assertFalse(r.undo())}
+    @Test fun chordOpensSafeCellsAndWrongFlagCanLose(){val g=MinesGame();g.planted=true;g.mines=IntArray(81);g.mines[0]=1;g.open[10]=1;g.flag(0);g.chord(10);assertFalse(g.lost);assertEquals(1,g.open[1]);val bad=MinesGame();bad.planted=true;bad.mines=IntArray(81);bad.mines[0]=1;bad.open[10]=1;bad.flag(1);bad.chord(10);assertTrue(bad.lost)}
+    @Test fun shortGuidesDescribeActualVariants(){Registry.games.forEach{assertTrue(it.name,it.rules.split(Regex("\\s+")).size<160);assertTrue(it.rules.contains("GOAL\n"));assertTrue(it.rules.contains("EXAMPLE\n"))};assertTrue(Registry.get("enigma").rules.contains("3 guesses"));assertTrue(Registry.get("mastermind").rules.contains("Colors may repeat"));assertFalse(Registry.get("mastermind").rules.contains("cycle"))}
+}

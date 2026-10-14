@@ -1,0 +1,23 @@
+from pathlib import Path
+rules={
+'enigma':('Solve the Enigma','Find a secret four-digit code. All four digits are different; 0 can be first.','Each clue describes its own code. “Right” counts digits in the correct slot; “misplaced” counts correct digits in other slots. Any digits not counted are absent. Every clue is exact.','If a clue has 2 correct digits, 1 right: one digit is correctly placed and one belongs elsewhere.','Tap a slot, then a number key. Use candidates and scratch-outs to rule out codes; hold a key to eliminate a digit. Submit with DECIPHER. You have 3 guesses. HINT helps; RESOLVE reveals the answer.'),
+'sudoku':('Sudoku','Fill the grid so every row, column and 3×3 box contains 1–9 once each.','Printed clues cannot change. A digit must fit all three groups, not just its row. Red entries conflict with another digit.','If a row lacks 2 and 7, check the column and box to decide which fits.','Tap a cell, then a digit. Notes stores possible digits; Erase clears an entry. Undo reverses an edit. Hint fills one empty cell. Choose Easy, Medium, Hard or Expert. Complete the valid grid to win.'),
+'mines':('Minesweeper','Open every safe square without opening a mine.','A number counts mines in the eight surrounding squares, including diagonals. Empty regions open together. Flags are reminders, not proof. Your first opening and its neighbors are safe.','A 1 touching just one unopened square means that square contains a mine.','Tap to reveal; hold to flag, or switch to Flag mode. Tap a revealed number after flagging its neighbors to open the others—wrong flags can lose the game. Drag and pinch larger boards. Choose 10, 40, 99 mines or Custom.'),
+'mastermind':('Mastermind','Discover the hidden four-color code within 10 guesses. Colors may repeat.','A black feedback peg means correct color and position. An ivory peg means correct color, wrong position. Blank sockets mean no further matches. Feedback is a count; its positions do not identify your pegs.','2 black + 1 ivory means two colors are correctly placed and another belongs in a different slot.','Tap a palette color to fill the next slot. Tap a guess slot to replace it, then choose its color directly. Submit a complete row. Compare feedback across guesses. Four black pegs wins.'),
+'memory':('Relic Hunt','Uncover every matching pair of relics.','Turn over two different cards per turn. A match stays face up; a mismatch turns back after a short pause. Remember both the relic and its location.','If you uncover a compass you saw earlier, select its remembered partner.','Tap cards to reveal them. Choose 6, 8, 12 or 16 pairs for a larger hunt. There is no turn limit. Finding all pairs wins; fewer turns improves your score. Progress saves when you leave.'),
+'2048':('2048','Merge tiles to make 2048, then continue toward 4096 and beyond.','Swipe moves all tiles in that direction. Equal neighbors merge into double their value, once per move. A valid move adds a new 2 or 4. Each merge adds its new value to your score.','2 + 2 makes 4. In a row of 2, 2, 2, 2, one swipe makes 4, 4—not 8.','Swipe the board; Undo reverses your last move. Keep empty spaces and plan ahead. Milestones are 512, 1024, 2048 and 4096. The run ends when the full board has no adjacent equal tiles.'),
+'nonogram':('Mosaic Restoration','Use row and column clues to reveal a hidden mosaic picture.','Each number describes a consecutive filled group, in order. Separate groups by at least one empty square. A 0 means the whole line is empty. Cross squares you know are empty.','3, 1 means three filled squares together, at least one gap, then one filled square. Extra empty squares may appear before, between or after groups.','Choose Fill or Mark ×, then tap or drag. Pan mode and pinch zoom help on larger boards. Completed lines dim their clues. Undo reverses a stroke. Restore 10×10, 15×15 or 20×20 pictures and collect them.'),
+}
+p=Path('app/src/main/java/com/ramy/mindgame/core/Registry.kt');s=p.read_text()
+import re,json
+for id,(name,goal,r,example,play) in rules.items():
+ text='GOAL\n'+goal+'\n\nRULES\n'+r+'\n\nEXAMPLE\n'+example+'\n\nPLAY\n'+play
+ pattern=r'(GameInfo\("'+re.escape(id)+r'",)[^\n]+'
+ line=next(x for x in s.splitlines() if 'GameInfo("'+id+'"' in x)
+ # Parse old seven string parameters, preserving constructors.
+ params=list(re.finditer(r'"(?:[^"\\]|\\.)*"',line))
+ a,b=params[5].span(); line=line[:a]+json.dumps(text,ensure_ascii=False)+line[b:]
+ if id=='memory':line=line.replace('"Memory Challenge"','"Relic Hunt"')
+ if id=='nonogram':line=line.replace('"Nonogram"','"Mosaic Restoration"')
+ s=re.sub(pattern,lambda m:line.strip(),s)
+p.write_text(s)
