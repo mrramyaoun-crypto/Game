@@ -94,12 +94,12 @@ class MainActivity: Activity() {
     }
     private fun settings() {
         val labels=arrayOf("Gentle card animations","Touch feedback")
-        AlertDialog.Builder(this).setTitle("Settings").setMultiChoiceItems(labels,booleanArrayOf(store.motion,store.haptics)) { _,i,v -> if(i==0) store.motion=v else store.haptics=v }.setPositiveButton("Done") { _,_ -> home() }.show()
+        AntiqueDialogs.Builder(this).setTitle("Settings").setMultiChoiceItems(labels,booleanArrayOf(store.motion,store.haptics)) { _,i,v -> if(i==0) store.motion=v else store.haptics=v }.setPositiveButton("Done") { _,_ -> home() }.show()
     }
     private fun statistics() {
         val content=Theme.column(this); content.setPadding(dp(this,20),dp(this,8),dp(this,20),dp(this,12))
-        Registry.games.forEach { info -> val s=store.stat(info.id); content.addView(Theme.text(this,info.name,17f,Color.parseColor(info.color),true)); content.addView(Theme.text(this,"${s.optInt("played")} started · ${s.optInt("wins")} wins · best score ${s.optInt("high")}\nBest time: ${if(s.optLong("best")==0L) "—" else time(s.optLong("best"))}",13f)) }
-        val scroll=ScrollView(this); scroll.addView(content); AlertDialog.Builder(this).setTitle("Your statistics").setView(scroll).setPositiveButton("Done",null).show()
+        Registry.games.forEach { info -> val s=store.stat(info.id); content.addView(Theme.text(this,info.name,17f,0xFF205C53.toInt(),true)); content.addView(Theme.text(this,"${s.optInt("played")} started · ${s.optInt("wins")} wins · best score ${s.optInt("high")}\nBest time: ${if(s.optLong("best")==0L) "—" else time(s.optLong("best"))}",13f,Theme.darkInk)) }
+        val scroll=ScrollView(this); scroll.addView(content); AntiqueDialogs.Builder(this).setTitle("Your statistics").setView(scroll).setPositiveButton("Done",null).show()
     }
     private fun launch(id: String,fresh: Boolean=false) {
         if(fresh && game is SudokuGame && id=="sudoku") {newGame(SudokuGame(difficulty=(game as SudokuGame).difficulty));return}
@@ -121,13 +121,15 @@ class MainActivity: Activity() {
         val scroll=ScrollView(this).apply{isFillViewport=true;isVerticalScrollBarEnabled=false}
         val table=GameTable(this,g.id);gameTable=table;scroll.addView(table,FrameLayout.LayoutParams(-1,-2));root.addView(scroll,LinearLayout.LayoutParams(-1,-1))
         val back=table.control("Explorer’s Desk","back",7f,5f,48f,48f){home()}
-        val menu=table.control("Game menu and rules","gear",337f,5f,48f,48f){AlertDialog.Builder(this).setTitle(Registry.get(g.id).name).setItems(arrayOf("How to play","New game")){_,i->if(i==0)RuleGuide.show(this,g.id)else restartGame()}.show()}
-        if(g.id in listOf("mastermind","memory","2048")){back.drawBody=true;menu.drawBody=true}
+        val menu=table.control("Game menu and rules","gear",337f,5f,48f,48f){AntiqueDialogs.Builder(this).setTitle(Registry.get(g.id).name).setItems(arrayOf("How to play","New game")){_,i->if(i==0)RuleGuide.show(this,g.id)else restartGame()}.show()}
+        back.drawBody=true;menu.drawBody=true
         when(g){is SudokuGame->sudoku(g);is MinesGame->mines(g);is MemoryGame->memory(g);is TilesGame->tiles(g);is NonogramGame->nonogram(g);is CodeGame->code(g)}
+        back.bringToFront();menu.bringToFront()
+        scroll.setOnScrollChangeListener { _,_,y,_,_ -> back.translationY=y.toFloat();menu.translationY=y.toFloat() }
         table.refresh()
     }
     internal fun elapsedLabel()=time(totalTime())
-    internal fun restartGame(){val g=game?:return;AlertDialog.Builder(this).setTitle("Start a new game?").setMessage("This replaces your saved ${Registry.get(g.id).name} game.").setNegativeButton("Keep playing",null).setPositiveButton("New game"){_,_->launch(g.id,true)}.show()}
+    internal fun restartGame(){val g=game?:return;AntiqueDialogs.Builder(this).setTitle("Start a new game?").setMessage("This replaces your saved ${Registry.get(g.id).name} game.").setNegativeButton("Keep playing",null).setPositiveButton("New game"){_,_->launch(g.id,true)}.show()}
     internal fun isCollected(key:String)=store.collected(key)
     internal fun gameMessage():String{val g=game?:return "";return when{g.lost->"Game over · open menu for a new game";g.won&&g !is TilesGame->"Solved! · score ${g.score}";else->""}}
     internal fun persist() { game?.let { store.save(it,totalTime(),recorded) } }

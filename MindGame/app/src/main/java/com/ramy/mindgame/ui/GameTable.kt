@@ -19,7 +19,7 @@ class GameTable(c:Context,val gameId:String,var designHeight:Float=786f):ViewGro
 }
 class GameText(c:Context,private val value:()->String,private val size:Float,private val color:Int,private val bold:Boolean,private val align:Paint.Align):View(c){
  private val p=Paint(Paint.ANTI_ALIAS_FLAG)
- override fun onDraw(c:Canvas){val s=resources.displayMetrics.widthPixels/393f;p.color=color;p.typeface=Typeface.create("serif",if(bold)Typeface.BOLD else Typeface.NORMAL);p.textSize=size*s;p.textAlign=align;val txt=value();contentDescription=txt;if(p.measureText(txt)>width-4*s)p.textSize*=((width-4*s)/p.measureText(txt)).coerceAtMost(1f);c.drawText(txt,when(align){Paint.Align.LEFT->2*s;Paint.Align.RIGHT->width-2*s;else->width/2f},height/2f-(p.ascent()+p.descent())/2,p)}
+ override fun onDraw(c:Canvas){val s=resources.displayMetrics.widthPixels/393f;p.color=color;p.typeface=GameFonts.face(context,bold);p.textSize=size*s;p.textAlign=align;val txt=value();contentDescription=txt;if(p.measureText(txt)>width-4*s)p.textSize*=((width-4*s)/p.measureText(txt)).coerceAtMost(1f);c.drawText(txt,when(align){Paint.Align.LEFT->2*s;Paint.Align.RIGHT->width-2*s;else->width/2f},height/2f-(p.ascent()+p.descent())/2,p)}
 }
 class GameControl(c:Context,val label:String,private val icon:String?,action:()->Unit):View(c){
  var selectedControl=false;var showLabel=icon==null;var ink=Theme.ink;var drawBody=false;var bodyTeal=false
@@ -30,8 +30,16 @@ class GameControl(c:Context,val label:String,private val icon:String?,action:()-
  override fun onDraw(c:Canvas){val s=minOf(width/48f,height/44f)
   if(drawBody){val r=RectF(2f,3f,width-2f,height-3f);val rad=if(width<height*1.4f)height/2f else 14*s;p.shader=LinearGradient(0f,0f,0f,height.toFloat(),intArrayOf(if(bodyTeal)0xFF1C7972.toInt()else 0xFF76552B.toInt(),if(bodyTeal)0xFF073F3D.toInt()else 0xFF271B10.toInt()),null,Shader.TileMode.CLAMP);c.drawRoundRect(r,rad,rad,p);p.shader=null;p.style=Paint.Style.STROKE;p.strokeWidth=1.6f*s;p.color=Theme.brass;c.drawRoundRect(r,rad,rad,p);p.style=Paint.Style.FILL}
   if(isPressed||selectedControl){p.color=if(isPressed)0x44FFE5A0 else 0x25FFE5A0;c.drawRoundRect(3f,3f,width-3f,height-3f,minOf(height/2f,12*s),minOf(height/2f,12*s),p)}
-  if(icon!=null){c.save();val side=minOf(width*.6f,height*.63f);c.translate(if(showLabel)side*.1f else(width-side)/2,(height-side)/2);c.scale(side/100,side/100);GameIcons.draw(c,icon,ink);c.restore()}
-  if(showLabel){p.color=ink;p.textAlign=Paint.Align.CENTER;p.typeface=Typeface.create("serif",Typeface.NORMAL);p.textSize=minOf(17f*resources.displayMetrics.widthPixels/393f,height*.36f);val room=if(icon==null)width.toFloat()else width*.66f;if(p.measureText(label)>room-4)p.textSize*=((room-4)/p.measureText(label));c.drawText(label,if(icon==null)width/2f else width*.64f,height/2f-(p.ascent()+p.descent())/2,p)}
+  val scale=resources.displayMetrics.widthPixels/393f
+  p.color=ink;p.typeface=GameFonts.face(context);p.textSize=minOf(16f*scale,height*.35f)
+  val side=if(icon==null)0f else if(showLabel)minOf(26f*scale,height*.50f)else minOf(width*.6f,height*.63f)
+  val gap=if(icon!=null&&showLabel)4f*scale else 0f
+  val room=width-12f*scale-side-gap
+  if(showLabel&&p.measureText(label)>room&&room>0)p.textSize*=room/p.measureText(label)
+  val textWidth=if(showLabel)p.measureText(label)else 0f
+  val groupLeft=(width-side-gap-textWidth)/2f
+  if(icon!=null){c.save();c.translate(groupLeft,(height-side)/2);c.scale(side/100,side/100);GameIcons.draw(c,icon,ink);c.restore()}
+  if(showLabel){p.textAlign=Paint.Align.LEFT;c.drawText(label,groupLeft+side+gap,height/2f-(p.ascent()+p.descent())/2,p)}
  }
 }
 object GameIcons{

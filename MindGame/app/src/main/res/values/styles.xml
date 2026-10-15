@@ -1,3 +1,24 @@
-<resources><style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
-<item name="android:fontFamily">sans</item><item name="android:windowLightStatusBar">false</item><item name="android:statusBarColor">#352215</item><item name="android:navigationBarColor">#352215</item><item name="android:colorAccent">#73C4B3</item><item name="android:windowActionModeOverlay">true</item><item name="android:windowBackground">#352215</item>
-</style></resources>
+<resources>
+    <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">@font/antique_serif</item>
+        <item name="android:alertDialogTheme">@style/AntiqueDialogTheme</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">#352215</item>
+        <item name="android:navigationBarColor">#352215</item>
+        <item name="android:colorAccent">#73C4B3</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">#352215</item>
+    </style>
+    <style name="AntiqueDialogTheme" parent="android:style/Theme.Material.Light.Dialog.Alert">
+        <item name="android:fontFamily">@font/antique_serif</item>
+        <item name="android:textColorPrimary">#39291A</item>
+        <item name="android:textColorAlertDialogListItem">#39291A</item>
+        <item name="android:textColorSecondary">#6A4C2C</item>
+        <item name="android:colorAccent">#205C53</item>
+        <item name="android:colorControlNormal">#76552B</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+        <item name="android:backgroundDimAmount">0.65</item>
+        <item name="android:windowElevation">16dp</item>
+    </style>
+</resources>

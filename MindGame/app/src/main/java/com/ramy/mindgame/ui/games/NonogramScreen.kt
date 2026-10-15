@@ -5,14 +5,14 @@ import com.ramy.mindgame.games.*
 import com.ramy.mindgame.ui.*
 internal fun MainActivity.nonogram(g:NonogramGame){
  val t=gameTable!!
- fun pick(){val ps=NonogramGame.pictures;AlertDialog.Builder(this).setTitle("Choose a restoration").setItems(ps.map{"${it.size}×${it.size} · ${it.name}"}.toTypedArray()){_,i->newGame(NonogramGame(pictureKey=ps[i].key))}.show()}
+ fun pick(){val ps=NonogramGame.pictures;AntiqueDialogs.Builder(this).setTitle("Choose a restoration").setItems(ps.map{"${it.size}×${it.size} · ${it.name}"}.toTypedArray()){_,i->newGame(NonogramGame(pictureKey=ps[i].key))}.show()}
  t.text({"Mosaic Restoration"},57f,3f,278f,40f,22f,Theme.ink,true)
  t.control("Choose restoration and size",null,147f,49f,192f,74f){pick()}.showLabel=false
  t.text({g.title},146f,60f,187f,30f,20f,Theme.ink,true,Paint.Align.LEFT)
  t.text({"${g.size} × ${g.size}  ▾  ·  ${elapsedLabel()}"},146f,90f,188f,22f,13f,Theme.ink,false,Paint.Align.LEFT)
  t.place(HuntProgress(this,{g.board.indices.count{g.board[it]==1}.toFloat()/g.solution.count{it==1}.coerceAtLeast(1)}),148f,116f,174f,8f)
  var pan=false;val field=MosaicView(this,g,{markMode},{pan},{changed();if(g.won)playPage()else t.refresh()});t.place(field,26f,145f,338f,365f)
- val fill=t.control("Fill","fill",93f,548f,99f,44f){markMode=false;pan=false;t.refresh()};fill.showLabel=true
+ val fill=t.control("Fill","fill",98f,548f,91f,44f){markMode=false;pan=false;t.refresh()};fill.showLabel=true
  val mark=t.control("Mark","cross",209f,548f,88f,44f){markMode=true;pan=false;t.refresh()};mark.showLabel=true;mark.contentDescription="Mark ×"
  t.control("Undo","undo",30f,548f,46f,44f){if(g.undo()){changed();field.invalidate()}}
  t.control("Zoom in","zoom",315f,548f,45f,44f){field.zoomBy(1.25f)}

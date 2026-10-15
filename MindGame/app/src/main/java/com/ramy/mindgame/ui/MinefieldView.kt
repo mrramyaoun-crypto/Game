@@ -40,7 +40,7 @@ class MinefieldView(context: Context,private val game: MinesGame,private val fla
             val rect=android.graphics.RectF(x+.5f,y+.5f,x+tile-.5f,y+tile-.5f)
             PhysicalPieces.sprite(context,c,if(covered&&v!=-2)"stone"else "paper",rect)
             if(v<0){val inset=tile*.16f;PhysicalPieces.sprite(context,c,if(v==-1)"flag"else "mine",android.graphics.RectF(x+inset,y+inset,x+tile-inset,y+tile-inset))}
-            else if(v>0){val p=numberPaint;p.textAlign=android.graphics.Paint.Align.CENTER;p.typeface=android.graphics.Typeface.create("serif",android.graphics.Typeface.NORMAL);p.textSize=tile*.65f;p.color=numberColors[(v-1)%4];c.drawText("$v",x+tile/2,y+tile/2-(p.ascent()+p.descent())/2,p)}
+            else if(v>0){val p=numberPaint;p.textAlign=android.graphics.Paint.Align.CENTER;p.typeface=GameFonts.face(context);p.textSize=tile*.65f;p.color=numberColors[(v-1)%4];c.drawText("$v",x+tile/2,y+tile/2-(p.ascent()+p.descent())/2,p)}
         };c.restore()
     }
     override fun onTouchEvent(e: android.view.MotionEvent): Boolean {

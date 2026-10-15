@@ -6,7 +6,7 @@ import com.ramy.mindgame.ui.*
 internal fun MainActivity.sudoku(g:SudokuGame){
  val t=gameTable!!;var pencil=false
  t.text({"Sudoku"},145f,44f,185f,45f,30f,Theme.ink,true,Paint.Align.LEFT)
- t.control("Choose Sudoku difficulty",null,145f,86f,195f,43f){AlertDialog.Builder(this).setTitle("Choose difficulty").setItems(arrayOf("Easy · singles","Medium · locked candidates","Hard · candidate pairs","Expert · advanced deduction")){_,i->newGame(SudokuGame(difficulty=listOf("Easy","Medium","Hard","Expert")[i]))}.show()}.showLabel=false
+ t.control("Choose Sudoku difficulty",null,145f,86f,195f,43f){AntiqueDialogs.Builder(this).setTitle("Choose difficulty").setItems(arrayOf("Easy · singles","Medium · locked candidates","Hard · candidate pairs","Expert · advanced deduction")){_,i->newGame(SudokuGame(difficulty=listOf("Easy","Medium","Hard","Expert")[i]))}.show()}.showLabel=false
  t.text({"${g.difficulty}  ▾  ·  ${elapsedLabel()}"},145f,90f,192f,30f,16f,Theme.ink,false,Paint.Align.LEFT)
  val board=SudokuBoardView(this,g,{selected},{i->selected=i;t.refresh()});t.place(board,18f,161f,361f,401f)
  listOf("Undo" to "undo","Erase" to "erase","Notes" to "notes","Hint" to "hint").forEachIndexed{i,(label,icon)->val control=t.control(label,icon,15f+i*97f,589f,73f,51f){

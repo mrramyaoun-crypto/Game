@@ -20,7 +20,7 @@ internal fun MainActivity.memory(g:MemoryGame){
   t.place(v,16f+i%4*94f,gridY+i/4*cardH,85f,cardH-11);all.add(v)
  };cells=all
  val footer=maxOf(654f,gridY+gridH+12)
- t.control("Choose hunt difficulty",null,70f,footer,253f,44f){AlertDialog.Builder(this).setTitle("Choose your hunt").setItems(arrayOf("6 pairs · Discovery","8 pairs · Explorer","12 pairs · Curator","16 pairs · Master")){_,i->newGame(MemoryGame(pairs=listOf(6,8,12,16)[i]))}.show()}.apply{drawBody=true;showLabel=false}
+ t.control("Choose hunt difficulty",null,70f,footer,253f,44f){AntiqueDialogs.Builder(this).setTitle("Choose your hunt").setItems(arrayOf("6 pairs · Discovery","8 pairs · Explorer","12 pairs · Curator","16 pairs · Master")){_,i->newGame(MemoryGame(pairs=listOf(6,8,12,16)[i]))}.show()}.apply{drawBody=true;showLabel=false}
  t.text({when(g.pairs){6->"Discovery";8->"Explorer";12->"Curator";else->"Master"}+"  ·  ${g.pairs} pairs  ▾"},78f,footer+2,237f,40f,16f)
  t.text({if(g.won)"All relics recovered! · score ${g.score}"else "—  Flip two cards. Find the pair.  —"},25f,footer+48,343f,31f,14f)
  refresh();if(g.second>=0)hideLater()
